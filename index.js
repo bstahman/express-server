@@ -19,6 +19,15 @@ app.post('/create-order', (req, res) => {
 	// if body is not formatted correctly
 		// send error
 
+	for(let line of req.Lines) {
+
+		if(!line.ExistsInDear) {
+			
+			
+		}
+
+	}
+
 	// await promiseall createSupplierIfNoneExists createItemsIfNoneExist
 
 
@@ -30,42 +39,30 @@ app.post('/create-order', (req, res) => {
 });
 
 
-/*
-	@param: {string} supplierStr - string of supplier to create if none exists.
-	@return: {boolean} returns true on success, false on failure
-*/
-async function createSupplierIfNoneExists(supplierStr) {
-
-	// get list of suppliers from DEAR
-
-	// if supplier param in list
-		// return true
-
-	// else
-		// create new supplier
-
-		//return true
-}
-
-/*
-	@param: {array} itemList - list of items to create if none exist
-	@return: {boolean} returns true on success, false on failure
-*/
-async function createItemsIfNoneExist(itemList) {
-
-	// get list of items in dear
-
-	// for each item in itemList
-		// if item not in dearList
-			// add to list of items to create
-
-	// for item in list of items to create
-		// create item in dear
-		// append to list of promises
-
-
-	
-}
-
-
 app.listen(port, () => console.log(`Hello world app listening on port ${port}!`));
+
+
+
+/*
+{
+    "Supplier": {
+        "Name": "supplierVal",
+        "ExistsInDear": false
+    },
+    "IsExpensifyPurchase": false,
+    "AdditionalCost": 20.50,
+    "OrderTotal": 100.50,
+    "Lines": [
+        {
+            "SKU": "123",
+            "Quantity": 2,
+            "Price":40,
+            "Total":80,
+            "ExistsInDear": false
+        }
+    ]
+}
+
+
+
+*/

@@ -85,7 +85,7 @@ async function makePostRequest(path, body, stringifyFlag) {
         });
 
 
-        req.write(stringifyFlag ? JSON.stringify(body) : body);
+        req.write(body);
 
         req.end();
 
@@ -93,25 +93,7 @@ async function makePostRequest(path, body, stringifyFlag) {
 
 }
 
-async function wrapper() {
-
-    let lines = [
-		{
-			SKU: "yo2",
-			Name: "test2",
-			Quantity: 2,
-			Price: 5,
-			Total: 10,
-		}
-    ];
-
-	let resp = await uploadPO("Macron", lines, 10, 20);
-
-	console.log(resp)
-
-}
-
-async function uploadPO(supplier, lines, additionalCost, orderTotal) {
+async function uploadPO(supplier, lines, additionalCost, orderTotal, note) {
 
     let bodyCreate = JSON.stringify({
 
@@ -119,11 +101,10 @@ async function uploadPO(supplier, lines, additionalCost, orderTotal) {
         Approach: "INVOICE",
         Location: "Main Warehouse",
         PurchaseType: "Advanced",
+        Note: note,
     });
 
     let response1 = await makePostRequest('/ExternalApi/v2/advanced-purchase', bodyCreate);
-
-    console.log(response1);
 
     let bodyLines = JSON.stringify({
 
@@ -131,42 +112,13 @@ async function uploadPO(supplier, lines, additionalCost, orderTotal) {
         "Status": "DRAFT",
         "Lines": lines,
         "Total": orderTotal,
-        "AdditionalCharges" : additionalCost != 0 ? {Description:"Additional Costs",Price:additionalCost,Quantity:1,Total:additionalCost,TaxRule:"Tax Exempt"} : null,
+        "Memo": "???",
+        "AdditionalCharges" : additionalCost != 0 ? [{Description:"Additional Costs",Price:additionalCost,Quantity:1,Total:additionalCost,TaxRule:"Tax Exempt"}] : null,
     });
-
-    console.log(bodyLines)
 
     let response2 = await makePostRequest('/ExternalApi/v2/purchase/order', bodyLines);
 
-    console.log(response2);
-
     return { response1: response1, response2: response2 };
-
-}
-
-async function test() {
-
-	let promiseList = [];
-
-	for(let i = 5; i < 15; i++) {
-
-		let obj = { SKU: `TESTING3${i}`,
-					Name: `TESTING3${i}`,
-					Type: "Stock",
-					UOM: "Item",
-					CostingMethod: "FIFO",
-					PriceTiers: {Tier1:0},
-					Status: "Active",
-					InventoryAccount: "1400",
-				};
-		promiseList.push(makePostRequest('/ExternalApi/v2/product',obj));
-	}
-
-	let x = await Promise.all(promiseList);
-
-	console.log(x)
-
-	console.log("done")
 
 }
 
@@ -187,25 +139,75 @@ async function createSupplier(supplierStr) {
 		Comments: "Created by Bryan's Non-PO Purchase Form"
 	}
 
-	return makePostRequest('/ExternalApi/v2/supplier', body);
+	return makePostRequest('/ExternalApi/v2/supplier', JSON.stringify(body));
 
 }
 
 async function createItem(SKU, name) {
 
-	let body = { SKU: SKU,
-				Name: name,
-				Type: "Stock",
-				UOM: "Item",
-				CostingMethod: "FIFO",
-				PriceTiers: {Tier1:0},
-				Status: "Active",
-				InventoryAccount: "1400",
-				InternalNote: "Created by Bryan's Non-PO Purchase Form"
+	let body = { 
+                    SKU: SKU,
+    				Name: name,
+    				Type: "Stock",
+    				UOM: "Item",
+    				CostingMethod: "FIFO",
+    				PriceTiers: {Tier1:0},
+    				Status: "Active",
+    				InventoryAccount: "1400",
+    				InternalNote: "Created by Bryan's Non-PO Purchase Form"
 			};
 
-	return makePostRequest('/ExternalApi/v2/product', body)
+	return makePostRequest('/ExternalApi/v2/product', JSON.stringify(body));
 
 }
 
-wrapper()
+module.exports = { createItem, createSupplier, uploadPO };
+
+
+/*
+
+async function wrapper() {
+
+    await Promise.all([createSupplier("Clayton"),createItem("new item","new descrip")])
+
+    let lines = [
+        {
+            SKU: "new item",
+            Quantity: 2,
+            Price: 5,
+            Total: 10,
+        }
+    ];
+
+    let resp = await uploadPO(supplier = "Macron", lines, 10, 20, note = "nooote");
+
+    console.log(resp)
+
+}
+
+async function test() {
+
+    let promiseList = [];
+
+    for(let i = 5; i < 15; i++) {
+
+        let obj = { SKU: `TESTING3${i}`,
+                    Name: `TESTING3${i}`,
+                    Type: "Stock",
+                    UOM: "Item",
+                    CostingMethod: "FIFO",
+                    PriceTiers: {Tier1:0},
+                    Status: "Active",
+                    InventoryAccount: "1400",
+                };
+        promiseList.push(makePostRequest('/ExternalApi/v2/product',obj));
+    }
+
+    let x = await Promise.all(promiseList);
+
+    console.log(x)
+
+    console.log("done")
+
+}
+*/
