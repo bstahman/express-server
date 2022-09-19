@@ -95,6 +95,8 @@ async function makePostRequest(path, body, stringifyFlag) {
 
 async function uploadPO(supplier, lines, additionalCost, orderTotal, note) {
 
+    console.log(lines)
+
     let bodyCreate = JSON.stringify({
 
         Supplier: supplier,
@@ -112,8 +114,13 @@ async function uploadPO(supplier, lines, additionalCost, orderTotal, note) {
         "Status": "DRAFT",
         "Lines": lines,
         "Total": orderTotal,
-        "Memo": "???",
-        "AdditionalCharges" : additionalCost != 0 ? [{Description:"Additional Costs",Price:additionalCost,Quantity:1,Total:additionalCost,TaxRule:"Tax Exempt"}] : null,
+        "AdditionalCharges" : additionalCost != 0 ? [{
+                                                        Description: "Additional Costs",
+                                                        Price: additionalCost,
+                                                        Quantity: 1,
+                                                        Total: additionalCost,
+                                                        TaxRule: "Tax Exempt"
+                                                    }] : null,
     });
 
     let response2 = await makePostRequest('/ExternalApi/v2/purchase/order', bodyLines);
@@ -144,6 +151,9 @@ async function createSupplier(supplierStr) {
 }
 
 async function createItem(SKU, name) {
+
+    console.log("------------")
+    console.log(name)
 
 	let body = { 
                     SKU: SKU,
